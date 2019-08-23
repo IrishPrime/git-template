@@ -1,5 +1,19 @@
-#!/bin/sh
+#!/usr/bin/env bash
+
+# Generate a tags file from the project root, excluding some common things
+# which tend to not yield very helpful tags.
+
 set -e
+
 trap "rm -f .git/tags.$$" EXIT
-ctags --tag-relative -Rf .git/tags.$$ --exclude=.git --exclude=tmp --exclude=coverage --languages=-sql
+
+ctags \
+	-f .git/tags.$$ \
+	--tag-relative \
+	--recurse \
+	--exclude=.git \
+	--exclude=tmp \
+	--exclude=coverage \
+	--languages=-sql
+
 mv .git/tags.$$ .git/tags
