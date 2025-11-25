@@ -1,16 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# Some branch names should not be added to commit messages.
-if [ -z "$BRANCHES_TO_SKIP" ]; then
-  BRANCHES_TO_SKIP=(master develop test)
-fi
+# Add the Jira issue to the beginning of your commit message. Assumes branch
+# names of the following forms:
+# WKF-1234-a-short-description
+# WKF-1234/slashes-are-fine-too
+# prefix/XFIL-5678-a-different-description
+# hotfix/user/XFIL-5678/multiple-slashes-and-prefixes
 
-BRANCH_NAME=$(git symbolic-ref --short HEAD | cut -d- -f1,2)
-BRANCH_NAME="${BRANCH_NAME##*/}"
+ISSUE=$(git symbolic-ref --short HEAD | grep -o '[[:alpha:]]\+-[[:digit:]]\+' | head -1)
 
-BRANCH_EXCLUDED=$(printf "%s\n" "${BRANCHES_TO_SKIP[@]}" | grep -c "^$BRANCH_NAME$")
-BRANCH_IN_COMMIT=$(grep -c "\[$BRANCH_NAME\]" $1)
-
-if [ -n "$BRANCH_NAME" ] && ! [[ $BRANCH_EXCLUDED -eq 1 ]] && ! [[ $BRANCH_IN_COMMIT -ge 1 ]]; then
-  sed -i.bak -e "1s/^$/$BRANCH_NAME /" $1
+if [ -n "$ISSUE" ]; then
+	sed -i.bak -e "1s/^$/$ISSUE /" $1
 fi

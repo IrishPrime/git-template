@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+
+# Add the Jira issue to the beginning of your commit message. Assumes branch
+# names of the following forms:
+# WKF-1234-a-short-description
+# WKF-1234/slashes-are-fine-too
+# prefix/XFIL-5678-a-different-description
+# hotfix/user/XFIL-5678/multiple-slashes-and-prefixes
+
+
+# Get the path to the commit message file
+COMMIT_MSG_FILE=$1
+
+# Read the first line of the commit message
+SUBJECT=$(head -1 "${COMMIT_MSG_FILE}")
+
+# If only whitespace found or commit starts with a comment, consider the
+# message empty and fail
+if ! grep -q '[^[:space:]]' <<<$SUBJECT; then
+	echo >&2 "Error: Commit message cannot be empty."
+	exit 1
+fi
+
+if grep -q '^[:space:]*#' <<<$SUBJECT; then
+	echo >&2 "Error: Commit message cannot start with a comment."
+	exit 1
+fi
+
+# Identify the Jira issue key from the branch name
+ISSUE=$(git symbolic-ref --short HEAD | grep -o '[[:alpha:]]\+-[[:digit:]]\+' | head -1)
+
+# If we found an issue key, and the commit message doesn't start with it, add it
+if [ -n "$ISSUE" ] && ! grep -q "^$ISSUE" <<<$SUBJECT; then
+	sed -i.bak "1s/^/$ISSUE /" "$COMMIT_MSG_FILE"
+fi
