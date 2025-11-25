@@ -14,6 +14,8 @@ ctags \
 	--exclude=.git \
 	--exclude=tmp \
 	--exclude=coverage \
-	--languages=-sql
+	--exclude=build \
+	--exclude=dist \
+	--languages=-sql,json
 
 mv .git/tags.$$ .git/tags
