@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# post-merge hook: after a pull on the default branch, remove local branches
+# whose upstream has been deleted. Skips the fetch that `git bonsai` does,
+# since the pull that triggered this hook has just fetched.
+
+default=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null) || exit 0
+[[ $(git branch --show-current) == "${default#origin/}" ]] || exit 0
+
+exec git bonsai --no-fetch

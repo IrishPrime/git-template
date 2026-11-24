@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+# Remove local branches which have had their upstream removed. This is
+# particularly useful after a "Squash and Merge" on the remote, because the
+# local branch will not appear merged due to commit hash mismatches.
+#
+# Fetches and prunes every remote first, unless given `--no-fetch`.
+#
+# Branches checked out in another worktree are left alone: `git branch -D`
+# refuses to delete them.
+
+case "$1" in
+	--no-fetch) ;;
+	'') git fetch --all --prune || exit ;;
+	*)
+		echo >&2 "usage: git bonsai [--no-fetch]"
+		exit 2
+		;;
+esac
+
+git for-each-ref refs/heads \
+	--format='%(if:equals=[gone])%(upstream:track)%(then)%(refname:short)%(end)' |
+	while read -r branch; do
+		if [[ -n $branch ]]; then
+			git branch -D "$branch"
+		fi
+	done
