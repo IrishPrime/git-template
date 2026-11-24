@@ -20,7 +20,7 @@ the script straight from this checkout. That means:
 | --- | --- | --- |
 | `hooks/prepare-commit-msg` | `prepare-commit-msg` | Pre-fills an empty commit message with the issue key from the branch name. |
 | `hooks/commit-msg` | `commit-msg` | Rejects empty messages and messages that start with a comment; adds the issue key from the branch name if the subject doesn't already start with it. |
-| `hooks/ctags` | any (e.g. `post-checkout`, `post-merge`, `post-commit`) | Regenerates `.git/tags` with `ctags`. |
+| `hooks/ctags` | any (e.g. `post-checkout`, `post-merge`, `post-commit`) | Regenerates the `tags` file in the worktree's Git directory with `ctags`, in the background. |
 
 The issue key is the first `LETTERS-DIGITS` match in the branch name, so all of
 these work:
@@ -89,6 +89,11 @@ git config --global --add hook.ctags.event post-merge
 git config --global --add hook.ctags.event post-commit
 git config --global hook.ctags.command ~/src/git-template/hooks/ctags
 ```
+
+The `ctags` hook writes `tags` to the worktree's Git directory: `.git/tags` in
+the main worktree and `.git/worktrees/<name>/tags` in a linked one. Your editor
+may not look there; configure it to read that file, or change where the script
+writes it.
 
 ## Checking and disabling hooks
 

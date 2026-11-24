@@ -2,20 +2,37 @@
 
 # Generate a tags file from the project root, excluding some common things
 # which tend to not yield very helpful tags.
+#
+# The tags file goes in the worktree's own Git directory, which is `.git/` in
+# the main worktree and `.git/worktrees/<name>/` in a linked one. Tags use
+# absolute paths, because relative ones would resolve against that directory
+# rather than the worktree.
+#
+# Editors don't necessarily look for tags there. Configure the editor to read
+# this file, or change where this script writes it.
+#
+# Generation runs in the background so the triggering Git command doesn't wait.
 
 set -e
 
-trap "rm -f .git/tags.$$" EXIT
+toplevel=$(git rev-parse --show-toplevel)
+git_dir=$(git rev-parse --absolute-git-dir)
 
-ctags \
-	-f .git/tags.$$ \
-	--tag-relative \
-	--recurse \
-	--exclude=.git \
-	--exclude=tmp \
-	--exclude=coverage \
-	--exclude=build \
-	--exclude=dist \
-	--languages=-sql,json
+(
+	tmp="${git_dir}/tags.$$"
+	trap 'rm -f "${tmp}"' EXIT
 
-mv .git/tags.$$ .git/tags
+	ctags \
+		-f "${tmp}" \
+		--tag-relative=never \
+		--recurse \
+		--exclude=.git \
+		--exclude=tmp \
+		--exclude=coverage \
+		--exclude=build \
+		--exclude=dist \
+		--languages=-sql,json \
+		"${toplevel}"
+
+	mv "${tmp}" "${git_dir}/tags"
+) >/dev/null 2>&1 &
