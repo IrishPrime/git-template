@@ -21,7 +21,7 @@ if ! grep -q '[^[:space:]]' <<<$SUBJECT; then
 	exit 1
 fi
 
-if grep -q '^[:space:]*#' <<<$SUBJECT; then
+if grep -q '^[[:space:]]*#' <<<$SUBJECT; then
 	echo >&2 "Error: Commit message cannot start with a comment."
 	exit 1
 fi
