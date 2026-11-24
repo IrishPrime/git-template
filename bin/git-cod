@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# Check out the default branch: the one `origin/HEAD` points to.
+
+set -e
+
+default=$(git symbolic-ref --short refs/remotes/origin/HEAD)
+exec git switch "${default#origin/}"

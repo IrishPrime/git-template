@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+# Finish with a branch: switch to the default branch, pull, and remove local
+# branches whose upstream has been deleted.
+
+set -e
+
+git cod
+git pull
+git bonsai
